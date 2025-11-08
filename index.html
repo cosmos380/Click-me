@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raccoon Jump!</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #222;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #game {
+      position: relative;
+      width: 600px;
+      height: 200px;
+      background-color: #333;
+      overflow: hidden;
+      border: 3px solid #666;
+    }
+
+    #raccoon {
+      position: absolute;
+      bottom: 0;
+      left: 50px;
+      width: 40px;
+      height: 40px;
+      background-image: url('https://media.giphy.com/media/fuJPZBIIqzbt1kAYVc/giphy.gif');
+      background-size: cover;
+    }
+
+    #obstacle {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 30px;
+      height: 30px;
+      background-color: tan;
+      animation: move 1.5s infinite linear;
+    }
+
+    @keyframes move {
+      0% { right: 0; }
+      100% { right: 600px; }
+    }
+
+    #message {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-family: sans-serif;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <div id="raccoon"></div>
+    <div id="obstacle"></div>
+    <div id="message">Press SPACE to jump!</div>
+  </div>
+
+  <script>
+    const raccoon = document.getElementById("raccoon");
+    const obstacle = document.getElementById("obstacle");
+    const message = document.getElementById("message");
+    let jumping = false;
+    let alive = true;
+
+    document.body.onkeyup = (e) => {
+      if (e.code === "Space" && !jumping && alive) {
+        jump();
+      }
+    };
+
+    function jump() {
+      jumping = true;
+      let jumpHeight = 0;
+      const up = setInterval(() => {
+        if (jumpHeight >= 100) {
+          clearInterval(up);
+          const down = setInterval(() => {
+            if (jumpHeight <= 0) {
+              clearInterval(down);
+              jumping = false;
+            } else {
+              jumpHeight -= 5;
+              raccoon.style.bottom = jumpHeight + "px";
+            }
+          }, 20);
+        } else {
+          jumpHeight += 5;
+          raccoon.style.bottom = jumpHeight + "px";
+        }
+      }, 20);
+    }
+
+    // Collision detection
+    setInterval(() => {
+      const raccoonRect = raccoon.getBoundingClientRect();
+      const obstacleRect = obstacle.getBoundingClientRect();
+      if (
+        raccoonRect.left < obstacleRect.right &&
+        raccoonRect.right > obstacleRect.left &&
+        raccoonRect.bottom > obstacleRect.top
+      ) {
+        message.textContent = "💀 Game Over! Refresh to try again.";
+        obstacle.style.animation = "none";
+        alive = false;
+      }
+    }, 10);
+  </script>
+</body>
+</html>
